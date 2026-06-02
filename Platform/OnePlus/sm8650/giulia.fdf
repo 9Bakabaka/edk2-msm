@@ -1,0 +1,6 @@
+
+[FV.FvMain]
+FILE FREEFORM = 7cb8bdc9-f8ce-46d5-8baA-8c7411a6F1A8 {
+  SECTION RAW = startup.nsh
+  SECTION UI = "startup.nsh"
+}

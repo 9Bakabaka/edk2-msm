@@ -14,3 +14,17 @@ ramdisk
 *.rej
 *.orig
 *.fd
+
+# Local extraction/test artifacts
+ace5_dt/
+ace5_edk2_dump_*/
+ace5_edk2_dump_*.tar.gz
+dtb.img
+empty_ramdisk
+mkbootimg_clean.py
+payload.bin
+startup.nsh
+trim_fd.py
+uefi_boot.img
+uefi_kernel_with_dtb.bin
+uefi_size.txt

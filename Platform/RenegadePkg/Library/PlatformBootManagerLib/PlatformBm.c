@@ -516,21 +516,24 @@ VOID EFIAPI PlatformBootManagerBeforeConsole(VOID)
   EfiBootManagerUpdateConsoleVariable(
       ConIn, (EFI_DEVICE_PATH_PROTOCOL *)&mUsbKeyboard, NULL);
 
-  EFI_HANDLE *              handles;
+  EFI_STATUS                InputStatus;
+  EFI_HANDLE               *Handles;
   UINTN                     NoHandles;
-  EFI_DEVICE_PATH_PROTOCOL *devicehandle;
-  /*CHAR16 *devicepathtxt;*/
-  // EfiBootManagerUpdateConsoleVariable(ConIn,
-  //  (EFI_DEVICE_PATH_PROTOCOL*)&gQcomKeypadDeviceGuid, NULL);
-  gBS->LocateHandleBuffer(
+  UINTN                     Index;
+  EFI_DEVICE_PATH_PROTOCOL *DevicePath;
+
+  InputStatus = gBS->LocateHandleBuffer(
       ByProtocol, &gEfiSimpleTextInputExProtocolGuid, NULL, &NoHandles,
-      &handles);
-  devicehandle = DevicePathFromHandle(handles[1]);
-  EfiBootManagerUpdateConsoleVariable(
-      ConIn, devicehandle, NULL); /*
-            devicepathtxt = ConvertDevicePathToText(devicehandle,TRUE,TRUE);
-            DEBUG((DEBUG_ERROR,"There are %s handles\n",devicepathtxt));
-            ASSERT(0);*/
+      &Handles);
+  if (!EFI_ERROR(InputStatus)) {
+    for (Index = 0; Index < NoHandles; Index++) {
+      DevicePath = DevicePathFromHandle(Handles[Index]);
+      if (DevicePath != NULL) {
+        EfiBootManagerUpdateConsoleVariable(ConIn, DevicePath, NULL);
+      }
+    }
+    gBS->FreePool(Handles);
+  }
 
   //
   // Add the hardcoded serial console device path to ConIn, ConOut, ErrOut.
@@ -600,6 +603,42 @@ VOID HandleCapsules(VOID)
 }
 
 #define VERSION_STRING_PREFIX L"Tianocore/EDK2 firmware version "
+
+VOID
+EFIAPI
+PlatformBootManagerWaitCallback(UINT16 TimeoutRemain);
+
+#ifdef FORCE_SETUP_ON_BOOT
+STATIC
+VOID
+PlatformBootManagerBootSetupAfterTimeout(VOID)
+{
+  EFI_STATUS                   Status;
+  EFI_BOOT_MANAGER_LOAD_OPTION BootManagerMenu;
+  UINT16                       Timeout;
+  UINT16                       TimeoutRemain;
+
+  Status = EfiBootManagerGetBootManagerMenu(&BootManagerMenu);
+  if (EFI_ERROR(Status)) {
+    DEBUG((DEBUG_ERROR, "%a: Boot Manager Menu unavailable: %r\n", __FUNCTION__, Status));
+    return;
+  }
+
+  Timeout = PcdGet16(PcdPlatformBootTimeOut);
+  if (Timeout == 0) {
+    Timeout = 3;
+  }
+
+  for (TimeoutRemain = Timeout; TimeoutRemain > 0; TimeoutRemain--) {
+    PlatformBootManagerWaitCallback(TimeoutRemain);
+    gBS->Stall(1000000);
+  }
+  PlatformBootManagerWaitCallback(0);
+
+  EfiBootManagerBoot(&BootManagerMenu);
+  EfiBootManagerFreeLoadOption(&BootManagerMenu);
+}
+#endif
 
 /**
   Do the platform specific action after the console is ready
@@ -695,6 +734,10 @@ VOID EFIAPI PlatformBootManagerAfterConsole(VOID)
 #endif
 
   PlatformSetup();
+
+#ifdef FORCE_SETUP_ON_BOOT
+  PlatformBootManagerBootSetupAfterTimeout();
+#endif
 }
 
 /**
@@ -723,7 +766,9 @@ VOID EFIAPI PlatformBootManagerWaitCallback(UINT16 TimeoutRemain)
 
   Status = BootLogoUpdateProgress(
       White.Pixel, Black.Pixel,
-#ifdef ENABLE_SIMPLE_INIT
+#ifdef FORCE_SETUP_ON_BOOT
+      L"Entering Setup",
+#elif defined(ENABLE_SIMPLE_INIT)
       L"Press any side button for SimpleInitGUI",
 #else
       L"Press any side button for Boot Options",

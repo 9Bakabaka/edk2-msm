@@ -257,6 +257,8 @@
   
 !if $(USE_UART) == 1
   SerialPortLib|Silicon/Qualcomm/QcomPkg/Library/QcomGeniSerialPortLib/QcomGeniSerialPortLib.inf
+!elseif $(NO_EXCEPTION_DISPLAY) == 1
+  SerialPortLib|Common/edk2/MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
 !else
   SerialPortLib|Silicon/Qualcomm/QcomPkg/Library/FrameBufferSerialPortLib/FrameBufferSerialPortLib.inf
 !endif
@@ -351,6 +353,8 @@
     <LibraryClasses>
     !if $(USE_UART) == 1
       SerialPortLib|Silicon/Qualcomm/QcomPkg/Library/QcomGeniSerialPortLib/QcomGeniSerialPortLib.inf
+    !elseif $(NO_EXCEPTION_DISPLAY) == 1
+      SerialPortLib|Common/edk2/MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
     !else
       SerialPortLib|Silicon/Qualcomm/QcomPkg/Library/FrameBufferSerialPortLib/FrameBufferSerialPortLib.inf
     !endif
@@ -377,7 +381,7 @@
     !if $(USE_UART) == 1
       SerialPortLib|Silicon/Qualcomm/QcomPkg/Library/QcomGeniSerialPortLib/QcomGeniSerialPortLib.inf
     !else
-    !if $(NO_EXCEPTION_DISPLAY) == TRUE
+    !if $(NO_EXCEPTION_DISPLAY) == 1
       SerialPortLib|Common/edk2/MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
     !else
       SerialPortLib|Silicon/Qualcomm/QcomPkg/Library/FrameBufferSerialPortLib/FrameBufferSerialPortLib.inf

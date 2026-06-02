@@ -1,7 +1,14 @@
 function platform_build_kernel(){
+	local UEFI_FD="${WORKSPACE}/Build/${DEVICE}/${_MODE}_${TOOLCHAIN}/FV/${SOC_PLATFORM}_UEFI.fd"
+	if ! [ -f "${UEFI_FD}" ]
+	then
+		typeset -u SOC_PLATFORM_U="${SOC_PLATFORM}"
+		UEFI_FD="${WORKSPACE}/Build/${DEVICE}/${_MODE}_${TOOLCHAIN}/FV/${SOC_PLATFORM_U}_UEFI.fd"
+	fi
+
 	cat \
 		"${ROOTDIR}/tools/BootShim/BootShim.bin" \
-		"${WORKSPACE}/Build/${DEVICE}/${_MODE}_${TOOLCHAIN}/FV/${SOC_PLATFORM}_UEFI.fd" \
+		"${UEFI_FD}" \
 		> "${WORKSPACE}/Build/${DEVICE}/${_MODE}_${TOOLCHAIN}/FV/${SOC_PLATFORM}_UEFI.fd-bootshim" \
 		||return "$?"
 	gzip -c \

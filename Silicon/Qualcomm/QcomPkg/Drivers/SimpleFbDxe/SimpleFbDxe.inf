@@ -26,6 +26,7 @@
   UefiDriverEntryPoint
   BaseMemoryLib
   DebugLib
+  IoLib
   PcdLib
   FrameBufferBltLib
   CacheMaintenanceLib
@@ -38,6 +39,12 @@
   gQcomTokenSpaceGuid.PcdMipiFrameBufferAddress
   gQcomTokenSpaceGuid.PcdMipiFrameBufferWidth
   gQcomTokenSpaceGuid.PcdMipiFrameBufferHeight
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferVisibleWidth
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferVisibleHeight
+  gQcomTokenSpaceGuid.PcdUefiMemPoolBase
+  gQcomTokenSpaceGuid.PcdUefiMemPoolSize
+  gArmTokenSpaceGuid.PcdFdBaseAddress
+  gArmTokenSpaceGuid.PcdFdSize
 
 [Guids]
   gEfiMdeModulePkgTokenSpaceGuid
@@ -48,4 +55,3 @@
 
 [Depex]
   gEfiCpuArchProtocolGuid
-
